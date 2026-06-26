@@ -7,10 +7,12 @@ export const inngest = new Inngest({ id: "code-room" });
 
 // Sync Clerk user to MongoDB
 const syncUser = inngest.createFunction(
-  { id: "sync-user-from-clerk", event: "clerk/user.created" },
+  { id: "sync-user-from-clerk" },
+  { event: ["clerk/user.created", "user.created"] }, // Now listens for both
   async ({ event }) => {
     await connectDB();
 
+    // Use event.data as normal
     const { id, first_name, last_name, email_addresses, image_url } = event.data;
 
     const existingUser = await User.findOne({ clerkId: id });
@@ -32,7 +34,8 @@ const syncUser = inngest.createFunction(
 
 // Delete user from MongoDB
 const deleteUserFromDB = inngest.createFunction(
-  { id: "delete-user-from-db", event: "clerk/user.deleted" },
+  { id: "delete-user-from-db" },
+  { event: ["clerk/user.deleted", "user.deleted"] }, // Now listens for both
   async ({ event }) => {
     await connectDB();
 
