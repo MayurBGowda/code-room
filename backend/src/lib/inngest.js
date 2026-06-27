@@ -1,6 +1,7 @@
 import { Inngest } from "inngest";
 import { connectDB } from "./db.js";
 import User from "../models/User.js";
+import { deleteStreamUser, upsertStreamUser } from "./stream.js";
 
 export const inngest = new Inngest({ id: "code-room" });
 
@@ -14,12 +15,19 @@ const syncUser = inngest.createFunction(
     const existingUser = await User.findOne({ clerkId: id });
 
     if (!existingUser) {
-      await User.create({
+      const newUser = await User.create({
         clerkId: id,
         name: `${first_name || ""} ${last_name || ""}`.trim(),
         email: email_addresses?.[0]?.email_address,
         profileImage: image_url || "",
       });
+
+      await upsertStreamUser({
+        id: newUser.clerkId.toString(),
+        name: newUser.name,
+        image: newUser.profileImage,
+      });
+
       console.log("✅ User synced to MongoDB");
     }
 
@@ -31,7 +39,11 @@ const deleteUserFromDB = inngest.createFunction(
   { id: "delete-user-from-db", triggers: [{ event: "clerk/user.deleted" }, { event: "user.deleted" }] },
   async ({ event }) => {
     await connectDB();
-    await User.deleteOne({ clerkId: event.data.id });
+
+    const { id } = event.data;
+    await User.deleteOne({ clerkId: id });
+    await deleteStreamUser(id.toString());
+
     console.log("🗑️ User deleted from MongoDB");
     return { success: true };
   }
