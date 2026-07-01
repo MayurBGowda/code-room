@@ -2,7 +2,7 @@ import { StreamChat } from "stream-chat";
 import { ENV } from "./env.js";
 
 const apiKey = ENV.STREAM_API_KEY;
-const apiSecret = ENV.STREAM_API_SECRET;
+const apiSecret = ENV.STREAM_SECRET_KEY;
 
 if (!apiKey || !apiSecret) {
   console.error("STREAM_API_KEY or STREAM_API_SECRET is missing");
@@ -25,5 +25,6 @@ export const deleteStreamUser = async (userId) => {
     console.log("Stream user deleted successfully:", userId);
   } catch (error) {
     console.error("Error deleting the Stream user:", error);
+
   }
 };

@@ -17,5 +17,5 @@ export const ENV = {
   INNGEST_SIGNING_KEY: process.env.INNGEST_SIGNING_KEY,
 
   STREAM_API_KEY: process.env.STREAM_API_KEY,      // ← missing
-  STREAM_API_SECRET: process.env.STREAM_API_SECRET, // ← missing
+  STREAM_SECRET_KEY: process.env.STREAM_SECRET_KEY, // ← missing
 };
